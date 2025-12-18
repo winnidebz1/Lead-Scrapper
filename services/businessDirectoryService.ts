@@ -47,6 +47,7 @@ const DIRECTORY_CONFIGS: Record<Country, {
     { name: 'Hotfrog', url: 'https://www.hotfrog.com.au', apiAvailable: false, requiresBackend: true },
   ],
   'Ghana': [
+    { name: 'Yellow Pages Ghana', url: 'https://www.yellowpagesghana.com', apiAvailable: false, requiresBackend: true },
     { name: 'GhanaWeb Business', url: 'https://www.ghanaweb.com', apiAvailable: false, requiresBackend: true },
     { name: 'Jumia Business', url: 'https://www.jumia.com.gh', apiAvailable: false, requiresBackend: true },
     { name: 'Tonaton', url: 'https://www.tonaton.com', apiAvailable: false, requiresBackend: true },
@@ -101,28 +102,53 @@ async function searchYelp(
 }
 
 /**
- * Search business directories using AI (fallback method)
- * In production, this would be replaced with actual directory scraping via backend
+ * Search directories via backend proxy (if available)
+ * This allows direct directory scraping without AI
  */
-async function searchDirectoriesWithAI(
+async function searchDirectoriesViaBackend(
   country: Country,
   industry: Industry,
   city: string
 ): Promise<DirectoryResult[]> {
-  // This would typically be done via backend to avoid CORS
-  // For now, we'll use a structured approach that can be extended
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || process.env.BACKEND_URL;
   
-  const directories = DIRECTORY_CONFIGS[country] || [];
-  
-  // In a real implementation, this would:
-  // 1. Make backend API calls to scrape directories
-  // 2. Parse HTML/JSON responses
-  // 3. Extract business information
-  // 4. Filter for businesses without websites
-  
-  // For now, return empty array - will be populated by backend service
-  // or can be extended with available APIs
-  return [];
+  if (!backendUrl) {
+    // No backend configured - directories require backend for scraping
+    return [];
+  }
+
+  try {
+    const response = await fetch(`${backendUrl}/api/directories/search`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        country,
+        industry,
+        city,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Backend API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    return (data.results || []).map((result: any) => ({
+      name: result.name,
+      phone: result.phone,
+      email: result.email,
+      address: result.address,
+      website: result.website,
+      rating: result.rating,
+      reviewCount: result.reviewCount,
+      source: result.source || 'Directory',
+    }));
+  } catch (error) {
+    console.error('Backend directory search error:', error);
+    return [];
+  }
 }
 
 /**
@@ -171,11 +197,36 @@ export async function searchBusinessDirectories(
     }
   }
 
-  // Try other directories via backend (placeholder for future implementation)
-  // In production, this would call a backend API that handles scraping
+  // Try other directories via backend proxy (if available)
+  // This allows real directory scraping without AI
   try {
-    const directoryResults = await searchDirectoriesWithAI(country, industry, city);
-    // Process directory results...
+    const backendResults = await searchDirectoriesViaBackend(country, industry, city);
+    
+    for (const result of backendResults) {
+      // Only include businesses without websites
+      if (!result.website) {
+        const lead: BusinessLead = {
+          id: Math.random().toString(36).substr(2, 9),
+          name: result.name,
+          industry,
+          country,
+          city,
+          phone: result.phone || '',
+          email: result.email || null,
+          emailSource: result.email ? EmailSource.DIRECTORY : EmailSource.NONE,
+          hasWebsite: false,
+          isActive: (result.reviewCount || 0) > 0,
+          mapsUrl: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(result.name + ' ' + city)}`,
+          directorySource: result.source,
+          reviewCount: result.reviewCount || 0,
+          lastReviewDate: new Date().toISOString(),
+          leadScore: calculateLeadScore(result),
+          dateAdded: new Date().toISOString(),
+          notes: result.address || '',
+        };
+        results.push(lead);
+      }
+    }
   } catch (error) {
     console.error('Directory search error:', error);
   }

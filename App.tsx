@@ -26,7 +26,7 @@ import {
 } from 'recharts';
 import { BusinessLead, Country, Industry, DiscoveryStats } from './types';
 import { COUNTRIES, INDUSTRIES, MOCK_CITIES } from './constants';
-import { discoverBusinesses } from './services/geminiService';
+import { discoverBusinesses } from './services/aiService';
 import { searchBusinesses, convertPlaceToLead, getPlaceDetails } from './services/googlePlacesService';
 import { searchBusinessDirectories } from './services/businessDirectoryService';
 import { storageService } from './services/storageService';
@@ -227,24 +227,40 @@ const App: React.FC = () => {
         toast.warning('Directory search encountered issues. Continuing...');
       }
 
-      // Step 3: Fallback to AI discovery if we still don't have enough results
-      if (results.length < 5) {
+      // Step 3: Optional AI discovery - only if no results and user wants it
+      // AI is completely optional - directories can work independently
+      if (results.length === 0) {
         try {
-          toast.info('Using AI-powered discovery to find more leads...');
+          toast.info('No directory results found. Trying AI-powered discovery (optional)...');
           const aiResults = await discoverBusinesses(scanConfig.country, scanConfig.industry, scanConfig.city);
           
           if (aiResults.length > 0) {
             results.push(...aiResults);
-            toast.success(`Discovered ${aiResults.length} additional leads using AI`);
+            toast.success(`Discovered ${aiResults.length} leads using AI`);
           }
         } catch (error) {
           console.error('AI discovery error:', error);
           const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          if (errorMessage.includes('GEMINI_API_KEY')) {
-            toast.error('GEMINI_API_KEY is not configured. Please add it to your .env.local file.');
+          if (errorMessage.includes('API_KEY') || errorMessage.includes('not configured')) {
+            // Don't show error - AI is optional, directories should work without it
+            toast.info('AI discovery not available (optional). Directory searches work independently.');
           } else {
-            toast.error(`AI discovery failed: ${errorMessage}`);
+            toast.warning(`AI discovery unavailable: ${errorMessage}`);
           }
+        }
+      } else if (results.length < 3) {
+        // Only use AI as supplement if we have some results but want more
+        try {
+          toast.info('Supplementing with AI discovery...');
+          const aiResults = await discoverBusinesses(scanConfig.country, scanConfig.industry, scanConfig.city);
+          
+          if (aiResults.length > 0) {
+            results.push(...aiResults);
+            toast.success(`Added ${aiResults.length} additional leads from AI`);
+          }
+        } catch (error) {
+          // Silently fail - AI is optional
+          console.log('AI discovery not available (optional)');
         }
       }
 

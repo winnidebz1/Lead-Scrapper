@@ -74,7 +74,9 @@ An AI-powered lead generation tool that discovers businesses without professiona
 ## 📖 Documentation
 
 - **[SETUP.md](SETUP.md)** - Detailed setup guide and API key instructions
+- **[WORKING_WITHOUT_AI.md](WORKING_WITHOUT_AI.md)** - How to use the app without AI APIs
 - **[DIRECTORIES.md](DIRECTORIES.md)** - Business directory integration guide
+- **[AI_PROVIDERS.md](AI_PROVIDERS.md)** - AI provider options (optional)
 - **[RECOMMENDATIONS.md](RECOMMENDATIONS.md)** - Future improvements and roadmap
 - **[CHANGELOG.md](CHANGELOG.md)** - List of all improvements made
 
@@ -104,10 +106,10 @@ An AI-powered lead generation tool that discovers businesses without professiona
 
 1. **Select Parameters**: Choose country, city, and industry
 2. **Run Discovery**: Click "Initialize Automated Run"
-3. **Multi-Source Search**: 
-   - Searches Google Places API for real businesses
-   - Searches business directories (Yelp for US, others require backend)
-   - Falls back to AI discovery if needed
+3. **Multi-Source Search** (AI is optional!): 
+   - **Primary**: Searches Google Places API for real businesses
+   - **Primary**: Searches business directories (Yelp, Yellow Pages, etc.) - **No AI needed!**
+   - **Optional**: Falls back to AI discovery only if directories return no results
 4. **Smart Deduplication**: Combines results and removes duplicates
 5. **Filter & Export**: Search, filter, and export your leads
 
