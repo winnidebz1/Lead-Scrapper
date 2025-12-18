@@ -30,6 +30,8 @@ import { discoverBusinesses } from './services/aiService';
 import { searchBusinesses, convertPlaceToLead, getPlaceDetails } from './services/googlePlacesService';
 import { searchBusinessDirectories } from './services/businessDirectoryService';
 import { storageService } from './services/storageService';
+import { validateLead, isHighQualityLead } from './services/dataValidationService';
+import { verifyLead, mergeDuplicateLeads, calculateLeadQuality } from './services/leadVerificationService';
 import { toast } from './utils/toast';
 import StatsCards from './components/StatsCards';
 import LeadTable from './components/LeadTable';
@@ -270,19 +272,50 @@ const App: React.FC = () => {
         return;
       }
 
-      // De-duplication check based on name + city
+      // Enhanced validation and deduplication
       setLeads(prev => {
-        const existingKeys = new Set(prev.map(l => `${l.name.toLowerCase()}-${l.city.toLowerCase()}`));
-        const uniqueNewResults = results.filter(r => 
-          !existingKeys.has(`${r.name.toLowerCase()}-${r.city.toLowerCase()}`)
-        );
-        
-        if (uniqueNewResults.length < results.length) {
-          const duplicates = results.length - uniqueNewResults.length;
-          toast.info(`Skipped ${duplicates} duplicate lead(s)`);
+        // Step 1: Validate all new leads
+        const validatedResults = results.map(lead => {
+          const validation = validateLead(lead, prev);
+          const verification = verifyLead(lead, prev);
+          const quality = calculateLeadQuality(lead);
+          
+          // Update lead with normalized data and quality metrics
+          return {
+            ...lead,
+            ...validation.normalized,
+            leadScore: quality.score, // Use quality score instead of basic score
+            notes: `${lead.notes || ''} | Confidence: ${verification.confidence}%`.trim(),
+          };
+        });
+
+        // Step 2: Filter out low-quality leads
+        const highQualityResults = validatedResults.filter(lead => {
+          const validation = validateLead(lead, prev);
+          return validation.isValid && validation.confidence >= 50;
+        });
+
+        if (highQualityResults.length < validatedResults.length) {
+          const filtered = validatedResults.length - highQualityResults.length;
+          toast.info(`Filtered out ${filtered} low-quality lead(s)`);
         }
-        
-        return [...prev, ...uniqueNewResults];
+
+        // Step 3: Merge duplicates intelligently
+        const allLeads = [...prev, ...highQualityResults];
+        const merged = mergeDuplicateLeads(allLeads);
+
+        if (merged.length < allLeads.length) {
+          const duplicates = allLeads.length - merged.length;
+          toast.info(`Merged ${duplicates} duplicate lead(s)`);
+        }
+
+        // Step 4: Count high-quality leads
+        const highQualityCount = merged.filter(l => isHighQualityLead(l)).length;
+        if (highQualityCount > 0) {
+          toast.success(`${highQualityCount} high-quality lead(s) found`);
+        }
+
+        return merged;
       });
 
       if (results.length > 0) {

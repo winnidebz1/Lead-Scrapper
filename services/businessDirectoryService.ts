@@ -47,6 +47,7 @@ const DIRECTORY_CONFIGS: Record<Country, {
     { name: 'Hotfrog', url: 'https://www.hotfrog.com.au', apiAvailable: false, requiresBackend: true },
   ],
   'Ghana': [
+    { name: 'BusinessGhana Directory', url: 'https://www.businessghana.com/site/directory', apiAvailable: false, requiresBackend: true },
     { name: 'Yellow Pages Ghana', url: 'https://www.yellowpagesghana.com', apiAvailable: false, requiresBackend: true },
     { name: 'GhanaWeb Business', url: 'https://www.ghanaweb.com', apiAvailable: false, requiresBackend: true },
     { name: 'Jumia Business', url: 'https://www.jumia.com.gh', apiAvailable: false, requiresBackend: true },

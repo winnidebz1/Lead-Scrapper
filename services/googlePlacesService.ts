@@ -32,12 +32,76 @@ interface GooglePlacesResponse {
  */
 function getPlaceType(industry: Industry): string {
   const typeMap: Record<Industry, string> = {
+    // Beauty & Personal Care
     'Salons & spas': 'beauty_salon',
     'Beauty & wellness': 'beauty_salon',
+    'Beauty & Personal Care': 'beauty_salon',
+    
+    // Food & Hospitality
     'Food & beverage': 'restaurant',
+    'Restaurants & Pubs': 'restaurant',
+    'Hotels': 'lodging',
+    'Travel & Tours': 'travel_agency',
+    
+    // Healthcare
     'Clinics & healthcare services': 'doctor',
+    'Health': 'doctor',
+    
+    // Retail
     'Fashion & retail': 'clothing_store',
+    'Clothing, Textiles & Accessories': 'clothing_store',
+    'Shopping Centers': 'shopping_mall',
+    
+    // Technology
+    'IT Companies': 'electronics_store',
+    'Information Services': 'establishment',
+    'Telecommunications': 'establishment',
+    'Electronics & Electricals': 'electronics_store',
+    
+    // Business Services
+    'Consultants': 'establishment',
+    'Sales and Marketing': 'establishment',
+    'Human Resource': 'establishment',
+    'Finance Companies': 'bank',
+    'Insurance': 'establishment',
+    'Real Estate Companies': 'real_estate_agency',
+    
+    // Manufacturing & Trade
+    'Manufacturers': 'establishment',
+    'Imports & Exports': 'establishment',
     'Logistics & trade services': 'storage',
+    'Postal, Courier & Delivery Services': 'post_office',
+    
+    // Education
+    'Education': 'school',
+    
+    // Engineering
+    'Engineering': 'establishment',
+    'Environmental Services': 'establishment',
+    
+    // Media & Entertainment
+    'Media': 'establishment',
+    'Entertainment': 'establishment',
+    'Printing & Publishing': 'establishment',
+    
+    // Automotive
+    'Automobiles': 'car_dealer',
+    'Transport': 'taxi_stand',
+    
+    // Energy
+    'Energy': 'establishment',
+    'Mining': 'establishment',
+    
+    // Other
+    'Agriculture': 'establishment',
+    'Security & Safety': 'establishment',
+    'NGOs': 'establishment',
+    'Associations': 'establishment',
+    'Government': 'city_hall',
+    'Religious Bodies': 'church',
+    'Sports': 'gym',
+    
+    // General
     'Professional services': 'lawyer',
     'SMEs': 'establishment',
     'Local service businesses': 'establishment',

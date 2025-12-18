@@ -24,6 +24,7 @@ BizDiscover AI now includes business directory integration to expand lead discov
 - **Hotfrog** - Australian business directory
 
 ### Ghana
+- **BusinessGhana Directory** - Comprehensive business directory with 50+ categories (https://www.businessghana.com/site/directory)
 - **Yellow Pages Ghana** - Official Yellow Pages directory for Ghana
 - **GhanaWeb Business** - Ghana business directory
 - **Jumia Business** - E-commerce and business directory
