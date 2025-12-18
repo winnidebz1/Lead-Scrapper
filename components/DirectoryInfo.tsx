@@ -30,9 +30,16 @@ const DirectoryInfo: React.FC<DirectoryInfoProps> = ({ country }) => {
           </span>
         ))}
       </div>
-      <p className="text-xs text-slate-500 mt-2">
-        Note: Directory scraping requires backend services. Yelp API is available for US searches.
-      </p>
+      <div className="mt-2 space-y-1">
+        <p className="text-xs text-slate-500">
+          <strong>Note:</strong> Most directories require a backend service for scraping. 
+        </p>
+        <div className="text-xs text-slate-600 space-y-1">
+          <p>✅ <strong>Works Now:</strong> Yelp API (US only) - Add YELP_API_KEY to .env.local</p>
+          <p>⚠️ <strong>Needs Backend:</strong> Other directories - See BACKEND_SETUP.md for quick setup</p>
+          <p>💡 <strong>Alternative:</strong> Use AI discovery (GEMINI_API_KEY) - works immediately without backend</p>
+        </div>
+      </div>
     </div>
   );
 };

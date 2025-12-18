@@ -34,49 +34,66 @@ An AI-powered lead generation tool that discovers businesses without professiona
    cd "Lead Scrapper"
    ```
 
-2. **Install dependencies:**
+2. **Install all dependencies (frontend + backend):**
    ```bash
-   npm install
+   npm run install:all
+   ```
+   
+   Or install separately:
+   ```bash
+   npm install              # Frontend
+   npm run backend:install  # Backend
    ```
 
 3. **Set up environment variables:**
    
    Create a `.env.local` file in the root directory:
-   ```bash
-   # Create .env.local file
-   ```
-   
-   Then add your API key (at minimum, you need GEMINI_API_KEY):
    ```env
-   # REQUIRED: For AI-powered discovery (works immediately, no backend needed)
-   GEMINI_API_KEY=your_gemini_api_key_here
+   # Backend URL (for directory scraping)
+   BACKEND_URL=http://localhost:5000
    
-   # OPTIONAL: For real business data (requires backend proxy due to CORS)
+   # OPTIONAL: For AI-powered discovery
+   VITE_GOOGLE_API_KEY=your_gemini_api_key_here
+   
+   # OPTIONAL: For Google Places API
    GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
    ```
 
 4. **Run the application:**
+   
+   **Option 1: Run both frontend and backend together (Recommended):**
    ```bash
+   npm start
+   ```
+   
+   **Option 2: Run separately:**
+   ```bash
+   # Terminal 1 - Frontend
    npm run dev
+   
+   # Terminal 2 - Backend
+   npm run backend
    ```
 
 5. **Open your browser:**
-   Navigate to `http://localhost:3000`
+   Navigate to `http://localhost:5173` (frontend) and `http://localhost:5000` (backend)
 
-### ⚠️ Important Note About Google Places API
+### ✅ Backend Now Included!
 
-**Google Places API requires a backend proxy** due to CORS restrictions. If you don't have a backend set up:
-- ✅ **Use AI Discovery**: Just add `GEMINI_API_KEY` - it works immediately!
-- ❌ **Google Places won't work** from browser directly - you'll see CORS errors
-
-**Recommended for quick start:** Just use `GEMINI_API_KEY` for AI discovery. It works perfectly without any backend!
+The backend server is now **merged into this project** in the `backend/` folder. It provides:
+- **Directory scraping** for Ghana, UK, US, and Australia
+- **CORS proxy** for API requests
+- **No external backend needed** - everything runs locally!
 
 ## 📖 Documentation
 
+- **[MERGED_PROJECT_GUIDE.md](MERGED_PROJECT_GUIDE.md)** - **START HERE!** Complete guide for the merged project
 - **[SETUP.md](SETUP.md)** - Detailed setup guide and API key instructions
+- **[BACKEND_SETUP.md](BACKEND_SETUP.md)** - Backend architecture and deployment guide
 - **[WORKING_WITHOUT_AI.md](WORKING_WITHOUT_AI.md)** - How to use the app without AI APIs
 - **[DIRECTORIES.md](DIRECTORIES.md)** - Business directory integration guide
 - **[AI_PROVIDERS.md](AI_PROVIDERS.md)** - AI provider options (optional)
+- **[ACCURACY_IMPROVEMENTS.md](ACCURACY_IMPROVEMENTS.md)** - How to improve lead accuracy
 - **[RECOMMENDATIONS.md](RECOMMENDATIONS.md)** - Future improvements and roadmap
 - **[CHANGELOG.md](CHANGELOG.md)** - List of all improvements made
 
