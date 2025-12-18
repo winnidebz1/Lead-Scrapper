@@ -200,7 +200,12 @@ const App: React.FC = () => {
           }
         } catch (error) {
           console.error('Google Places API error:', error);
-          toast.warning('Google Places API error. Trying other sources...');
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          if (errorMessage.includes('CORS') || errorMessage.includes('backend')) {
+            toast.error('Google Places requires a backend proxy. Using AI discovery instead...');
+          } else {
+            toast.warning('Google Places API error. Trying other sources...');
+          }
         }
       }
 
@@ -234,7 +239,12 @@ const App: React.FC = () => {
           }
         } catch (error) {
           console.error('AI discovery error:', error);
-          toast.warning('AI discovery encountered issues.');
+          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+          if (errorMessage.includes('GEMINI_API_KEY')) {
+            toast.error('GEMINI_API_KEY is not configured. Please add it to your .env.local file.');
+          } else {
+            toast.error(`AI discovery failed: ${errorMessage}`);
+          }
         }
       }
 

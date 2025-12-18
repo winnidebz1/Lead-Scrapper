@@ -24,12 +24,13 @@ An AI-powered lead generation tool that discovers businesses without professiona
 ### Prerequisites
 - Node.js (v18 or higher)
 - npm or yarn
+- **At least ONE API key** (see below)
 
 ### Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/winnidebz1/Lead-Scrapper.git
    cd "Lead Scrapper"
    ```
 
@@ -42,13 +43,15 @@ An AI-powered lead generation tool that discovers businesses without professiona
    
    Create a `.env.local` file in the root directory:
    ```bash
-   cp .env.example .env.local
+   # Create .env.local file
    ```
    
-   Then edit `.env.local` and add your API keys:
+   Then add your API key (at minimum, you need GEMINI_API_KEY):
    ```env
-   # At least one of these is required
+   # REQUIRED: For AI-powered discovery (works immediately, no backend needed)
    GEMINI_API_KEY=your_gemini_api_key_here
+   
+   # OPTIONAL: For real business data (requires backend proxy due to CORS)
    GOOGLE_PLACES_API_KEY=your_google_places_api_key_here
    ```
 
@@ -59,6 +62,14 @@ An AI-powered lead generation tool that discovers businesses without professiona
 
 5. **Open your browser:**
    Navigate to `http://localhost:3000`
+
+### ⚠️ Important Note About Google Places API
+
+**Google Places API requires a backend proxy** due to CORS restrictions. If you don't have a backend set up:
+- ✅ **Use AI Discovery**: Just add `GEMINI_API_KEY` - it works immediately!
+- ❌ **Google Places won't work** from browser directly - you'll see CORS errors
+
+**Recommended for quick start:** Just use `GEMINI_API_KEY` for AI discovery. It works perfectly without any backend!
 
 ## 📖 Documentation
 
@@ -139,12 +150,26 @@ An AI-powered lead generation tool that discovers businesses without professiona
 
 ## 🐛 Troubleshooting
 
-See [SETUP.md](SETUP.md) for detailed troubleshooting guide.
+**Having issues?** See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for comprehensive solutions.
 
-Common issues:
-- **API Key Errors**: Verify keys in `.env.local` and restart dev server
-- **No Leads Found**: Try different cities or industries
-- **Storage Quota**: Export and clear old leads
+### Quick Fixes:
+
+**"Discovery doesn't work" or "Nothing happens":**
+- ✅ Check you have `GEMINI_API_KEY` in `.env.local`
+- ✅ Restart dev server after adding API key
+- ✅ Check browser console (F12) for errors
+
+**"CORS error" or "Google Places doesn't work":**
+- ✅ This is normal! Google Places requires a backend proxy
+- ✅ **Solution**: Just use AI discovery with `GEMINI_API_KEY` instead
+- ✅ AI discovery works perfectly without any backend
+
+**"No leads found":**
+- ✅ Try different cities or industries
+- ✅ Use AI discovery (more reliable)
+- ✅ Check browser console for detailed errors
+
+**See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for detailed solutions.**
 
 ## 📦 Build for Production
 

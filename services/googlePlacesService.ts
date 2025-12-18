@@ -1,4 +1,5 @@
 import { BusinessLead, Country, Industry, EmailSource } from '../types';
+import { proxiedFetch, getApiErrorMessage, isCorsError } from './apiProxyService';
 
 const GOOGLE_PLACES_API_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY || process.env.GOOGLE_PLACES_API_KEY;
 
@@ -62,12 +63,26 @@ export async function searchBusinesses(
   
   try {
     // Use Text Search API
-    const response = await fetch(
-      `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&type=${type}&key=${GOOGLE_PLACES_API_KEY}`
-    );
+    const url = `https://maps.googleapis.com/maps/api/place/textsearch/json?query=${encodeURIComponent(query)}&type=${type}&key=${GOOGLE_PLACES_API_KEY}`;
+    
+    let response: Response;
+    try {
+      response = await proxiedFetch(url);
+    } catch (error) {
+      // If proxy fails, try direct call (will likely fail due to CORS)
+      if (isCorsError(error)) {
+        throw new Error(
+          'Google Places API requires a backend proxy due to CORS restrictions. ' +
+          'Please set up a backend server or use the AI discovery mode instead. ' +
+          'See SETUP.md for instructions.'
+        );
+      }
+      throw error;
+    }
 
     if (!response.ok) {
-      throw new Error(`Google Places API error: ${response.statusText}`);
+      const errorText = await response.text();
+      throw new Error(`Google Places API error: ${response.statusText} - ${errorText}`);
     }
 
     const data: GooglePlacesResponse = await response.json();
@@ -77,13 +92,23 @@ export async function searchBusinesses(
     }
 
     if (data.status !== 'OK' && data.status !== 'ZERO_RESULTS') {
-      throw new Error(`Google Places API error: ${data.status}`);
+      // Provide helpful error messages for common API errors
+      let errorMessage = `Google Places API error: ${data.status}`;
+      if (data.status === 'REQUEST_DENIED') {
+        errorMessage += '. Check if your API key is valid and Places API is enabled.';
+      } else if (data.status === 'OVER_QUERY_LIMIT') {
+        errorMessage += '. You have exceeded your API quota.';
+      } else if (data.status === 'INVALID_REQUEST') {
+        errorMessage += '. The request was invalid. Check your parameters.';
+      }
+      throw new Error(errorMessage);
     }
 
     return data.results || [];
   } catch (error) {
     console.error('Error fetching from Google Places API:', error);
-    throw error;
+    const friendlyMessage = getApiErrorMessage(error, 'Google Places API');
+    throw new Error(friendlyMessage);
   }
 }
 
