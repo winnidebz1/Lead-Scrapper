@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: lead-scrapper
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm run deploy:build
+    startCommand: npm run start:prod
+    envVars:
+      - key: NODE_ENV
+        value: production
