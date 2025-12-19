@@ -64,7 +64,7 @@ async function searchYelp(
   limit: number = 10
 ): Promise<DirectoryResult[]> {
   const yelpApiKey = import.meta.env.VITE_YELP_API_KEY || process.env.YELP_API_KEY;
-  
+
   if (!yelpApiKey) {
     return [];
   }
@@ -86,7 +86,7 @@ async function searchYelp(
     }
 
     const data = await response.json();
-    
+
     return (data.businesses || []).map((business: any) => ({
       name: business.name,
       phone: business.phone,
@@ -111,12 +111,9 @@ async function searchDirectoriesViaBackend(
   industry: Industry,
   city: string
 ): Promise<DirectoryResult[]> {
-  const backendUrl = import.meta.env.VITE_BACKEND_URL || process.env.BACKEND_URL;
-  
-  if (!backendUrl) {
-    // No backend configured - directories require backend for scraping
-    return [];
-  }
+  // In production (unified deployment), use relative URL
+  // In development, use VITE_BACKEND_URL from .env.local
+  const backendUrl = import.meta.env.VITE_BACKEND_URL || '';
 
   try {
     const response = await fetch(`${backendUrl}/api/directories/search`, {
@@ -167,7 +164,7 @@ export async function searchBusinessDirectories(
   if (country === 'United States') {
     try {
       const yelpResults = await searchYelp(`${industry} ${city}`, city);
-      
+
       for (const result of yelpResults) {
         // Only include businesses without websites
         if (!result.website) {
@@ -202,7 +199,7 @@ export async function searchBusinessDirectories(
   // This allows real directory scraping without AI
   try {
     const backendResults = await searchDirectoriesViaBackend(country, industry, city);
-    
+
     for (const result of backendResults) {
       // Only include businesses without websites
       if (!result.website) {
